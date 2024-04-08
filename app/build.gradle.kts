@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
+    kotlin("kapt")
 }
 
 android {
@@ -66,4 +69,32 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    // kotlinx serializer
+    implementation(libs.kotlinxSerialization)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.jakewharton.serialization)
+    implementation(libs.okhttp.urlconnection)
+
+    // Compose Navigation
+    implementation(libs.composeNavigation)
+
+    // Google Auth
+    implementation(libs.playServicesAuth)
+
+    // Dagger Hilt
+    implementation(libs.hilt)
+    kapt(libs.hilt.compiler)
+    kapt(libs.androidx.hilt.compiler)
+    implementation(libs.androidx.hilt.compose.navigation)
+
+    // DataStore Preferences
+    implementation(libs.datastore.preferences)
+
+    // Coil
+    implementation(libs.coil)
 }
