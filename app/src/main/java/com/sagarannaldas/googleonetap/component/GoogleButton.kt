@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sagarannaldas.googleonetap.R
 import com.sagarannaldas.googleonetap.ui.theme.LoadingBlue
@@ -45,6 +46,7 @@ fun GoogleButton(
     borderColor: Color = Color.LightGray,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     progressIndicatorColor: Color = LoadingBlue,
+    borderStrokeWidth: Dp = 1.dp,
     onClick: () -> Unit
 ) {
     var buttonText by remember { mutableStateOf(primaryText) }
@@ -59,16 +61,13 @@ fun GoogleButton(
                 onClick()
             },
         shape = shape,
-        border = BorderStroke(width = 1.dp, color = borderColor),
+        border = BorderStroke(width = borderStrokeWidth, color = borderColor),
         color = backgroundColor
     ) {
         Row(
             modifier = Modifier
                 .padding(
-                    start = 12.dp,
-                    top = 12.dp,
-                    bottom = 12.dp,
-                    end = 16.dp
+                    all = 12.dp
                 )
                 .animateContentSize(
                     animationSpec = tween(
