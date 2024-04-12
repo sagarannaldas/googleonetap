@@ -36,7 +36,7 @@ fun StartActivityForResult(
                     onResultReceived(tokenId)
                 }
             } else {
-                Log.d("StartActivityForResult", "BLACK SCRIM CLICKED, DIALOG CLICKED")
+                Log.d("StartActivityForResult", "BLACK SCREEN CLICKED OUT SIDE, DIALOG CLOSED")
                 onDialogDismissed()
             }
 
@@ -60,7 +60,7 @@ fun StartActivityForResult(
         }
 
     }
-    
+
     LaunchedEffect(key1 = key) {
         launcher(activityLauncher)
     }
