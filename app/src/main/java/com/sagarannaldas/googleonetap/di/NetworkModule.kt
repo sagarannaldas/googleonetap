@@ -1,6 +1,7 @@
 package com.sagarannaldas.googleonetap.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.sagarannaldas.googleonetap.data.remote.KtorApi
 import com.sagarannaldas.googleonetap.util.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -43,5 +44,11 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(Json.asConverterFactory(contentType))
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideKtorApi(retrofit: Retrofit): KtorApi {
+        return retrofit.create(KtorApi::class.java)
     }
 }
