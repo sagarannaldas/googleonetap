@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.sagarannaldas.googleonetap.R
+import com.sagarannaldas.googleonetap.component.DisplayAlertDialog
 import com.sagarannaldas.googleonetap.ui.theme.topAppBarBackgroundColor
 import com.sagarannaldas.googleonetap.ui.theme.topAppBarContentColor
 
@@ -50,8 +51,16 @@ fun ProfileTopBarActions(
     onSave: () -> Unit,
     onDeleteAllConfirmed: () -> Unit
 ) {
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+    DisplayAlertDialog(
+        openDialog = openDialog,
+        onYesClicked = { onDeleteAllConfirmed() },
+        onDialogClosed = { openDialog = false }
+    )
     SaveAction(onSave = onSave)
-    DeleteAllAction(onDeleteAllConfirmed = onDeleteAllConfirmed)
+    DeleteAllAction(onDeleteAllConfirmed = { openDialog = true })
 }
 
 @Composable
