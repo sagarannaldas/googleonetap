@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sagarannaldas.googleonetap.presentation.screen.login.LoginScreen
+import com.sagarannaldas.googleonetap.presentation.screen.profile.ProfileScreen
 
 @Composable
 fun SetUpNavGraph(navController: NavHostController) {
@@ -17,7 +18,7 @@ fun SetUpNavGraph(navController: NavHostController) {
             LoginScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
-
+            ProfileScreen(navController = navController)
         }
     }
 }
