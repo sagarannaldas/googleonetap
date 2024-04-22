@@ -8,10 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.sagarannaldas.googleonetap.domain.model.ApiResponse
 import com.sagarannaldas.googleonetap.domain.model.MessageBarState
 import com.sagarannaldas.googleonetap.domain.model.User
+import com.sagarannaldas.googleonetap.domain.model.UserUpdate
 import com.sagarannaldas.googleonetap.domain.repository.Repository
 import com.sagarannaldas.googleonetap.util.Constants.MAX_LENGTH
 import com.sagarannaldas.googleonetap.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,6 +63,63 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun updateUserInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _apiResponse.value = RequestState.Loading
+            try {
+                if (user.value != null) {
+                    val response = repository.getUserInfo()
+                    verifyAndUpdate(currentUser = response)
+                    _messageBarState.value = MessageBarState(
+                        message = response.message,
+                        error = response.error
+                    )
+                }
+            } catch (e: Exception) {
+                _apiResponse.value = RequestState.Error(e)
+                _messageBarState.value = MessageBarState(error = e)
+            }
+        }
+    }
+
+    private fun verifyAndUpdate(currentUser: ApiResponse) {
+        val (verified, exception) = if (firstName.value.isEmpty() || lastname.value.isEmpty()) {
+            Pair(false, EmptyFieldException())
+        } else {
+            if (currentUser.user?.name?.split(" ")?.first() == firstName.value &&
+                currentUser.user.name.split(" ").last() == lastname.value
+            ) {
+                Pair(false, NothingToUpdateException())
+            } else {
+                Pair(true, null)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (verified) {
+                val response = repository.updateUserInfo(
+                    userUpdate = UserUpdate(
+                        firstName = firstName.value,
+                        lastName = lastname.value
+                    )
+                )
+                _apiResponse.value = RequestState.Success(response)
+                _messageBarState.value = MessageBarState(
+                    message = response.message,
+                    error = response.error
+                )
+            } else {
+                _apiResponse.value = RequestState.Success(
+                    ApiResponse(
+                        success = false,
+                        error = exception
+                    )
+                )
+                _messageBarState.value = MessageBarState(error = exception)
+            }
+        }
+    }
+
     fun updateFirstName(newName: String) {
         if (newName.length < MAX_LENGTH) {
             _firstName.value = newName
@@ -73,3 +132,11 @@ class ProfileViewModel @Inject constructor(
         }
     }
 }
+
+class EmptyFieldException(
+    override val message: String = "Empty Input Field"
+) : Exception()
+
+class NothingToUpdateException(
+    override val message: String = "Nothing to Update"
+) : Exception()
