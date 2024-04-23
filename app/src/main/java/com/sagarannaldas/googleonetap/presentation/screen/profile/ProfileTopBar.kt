@@ -60,7 +60,7 @@ fun ProfileTopBarActions(
         onDialogClosed = { openDialog = false }
     )
     SaveAction(onSave = onSave)
-    DeleteAllAction(onDeleteAllConfirmed = { openDialog = true })
+    DeleteAllAction(onDelete = { openDialog = true })
 }
 
 @Composable
@@ -78,7 +78,7 @@ fun SaveAction(
 
 @Composable
 fun DeleteAllAction(
-    onDeleteAllConfirmed: () -> Unit
+    onDelete: () -> Unit
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -103,7 +103,7 @@ fun DeleteAllAction(
                 },
                 onClick = {
                     expanded = false
-                    onDeleteAllConfirmed()
+                    onDelete()
                 }
             )
         }

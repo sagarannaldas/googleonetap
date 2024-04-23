@@ -15,6 +15,7 @@ import com.sagarannaldas.googleonetap.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,6 +38,10 @@ class ProfileViewModel @Inject constructor(
     private var _messageBarState: MutableState<MessageBarState> = mutableStateOf(MessageBarState())
     val messageBarState: State<MessageBarState> = _messageBarState
 
+    private var _clearSessionResponse: MutableState<RequestState<ApiResponse>> =
+        mutableStateOf(RequestState.Idle)
+    val clearSessionResponse: State<RequestState<ApiResponse>> = _clearSessionResponse
+
     init {
         getUserInfo()
     }
@@ -45,7 +50,9 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _apiResponse.value = RequestState.Loading
             try {
-                val response = repository.getUserInfo()
+                val response = withContext(Dispatchers.IO) {
+                    repository.getUserInfo()
+                }
                 _apiResponse.value = RequestState.Success(response)
                 _messageBarState.value = MessageBarState(
                     message = response.message,
@@ -70,10 +77,6 @@ class ProfileViewModel @Inject constructor(
                 if (user.value != null) {
                     val response = repository.getUserInfo()
                     verifyAndUpdate(currentUser = response)
-                    _messageBarState.value = MessageBarState(
-                        message = response.message,
-                        error = response.error
-                    )
                 }
             } catch (e: Exception) {
                 _apiResponse.value = RequestState.Error(e)
@@ -97,17 +100,22 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             if (verified) {
-                val response = repository.updateUserInfo(
-                    userUpdate = UserUpdate(
-                        firstName = firstName.value,
-                        lastName = lastname.value
+                try {
+                    val response = repository.updateUserInfo(
+                        userUpdate = UserUpdate(
+                            firstName = firstName.value,
+                            lastName = lastname.value
+                        )
                     )
-                )
-                _apiResponse.value = RequestState.Success(response)
-                _messageBarState.value = MessageBarState(
-                    message = response.message,
-                    error = response.error
-                )
+                    _apiResponse.value = RequestState.Success(response)
+                    _messageBarState.value = MessageBarState(
+                        message = response.message,
+                        error = response.error
+                    )
+                } catch (e: Exception) {
+                    _apiResponse.value = RequestState.Error(e)
+                    _messageBarState.value = MessageBarState(error = e)
+                }
             } else {
                 _apiResponse.value = RequestState.Success(
                     ApiResponse(
@@ -129,6 +137,32 @@ class ProfileViewModel @Inject constructor(
     fun updateLastName(newName: String) {
         if (newName.length < MAX_LENGTH) {
             _lastName.value = newName
+        }
+    }
+
+    fun clearSession() {
+        _clearSessionResponse.value = RequestState.Loading
+        _apiResponse.value = RequestState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = repository.clearSession()
+                _clearSessionResponse.value = RequestState.Success(response)
+                _apiResponse.value = RequestState.Success(response)
+                _messageBarState.value = MessageBarState(
+                    message = response.message,
+                    error = response.error
+                )
+            } catch (e: Exception) {
+                _clearSessionResponse.value = RequestState.Error(e)
+                _apiResponse.value = RequestState.Error(e)
+                _messageBarState.value = MessageBarState(error = e)
+            }
+        }
+    }
+
+    fun saveSignedInState(signedIn: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveSignedInState(signedIn = signedIn)
         }
     }
 }
