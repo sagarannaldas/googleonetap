@@ -33,7 +33,9 @@ fun ProfileScreen(
         topBar = {
             ProfileTopBar(
                 onSave = { profileViewModel.updateUserInfo() },
-                onDeleteAllConfirmed = {}
+                onDeleteAllConfirmed = {
+                    profileViewModel.deleteUser()
+                }
             )
         },
         content = {
