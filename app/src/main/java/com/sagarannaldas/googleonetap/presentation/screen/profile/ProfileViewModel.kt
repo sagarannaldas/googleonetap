@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sagarannaldas.googleonetap.domain.model.ApiRequest
 import com.sagarannaldas.googleonetap.domain.model.ApiResponse
 import com.sagarannaldas.googleonetap.domain.model.MessageBarState
 import com.sagarannaldas.googleonetap.domain.model.User
@@ -178,6 +179,23 @@ class ProfileViewModel @Inject constructor(
                 _apiResponse.value = RequestState.Error(e)
                 _messageBarState.value = MessageBarState(error = e)
             }
+        }
+    }
+
+    fun verifyTokenOnBackend(request: ApiRequest) {
+        _apiResponse.value = RequestState.Loading
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = repository.verifyTokenBackend(request = request)
+                _apiResponse.value = RequestState.Success(response)
+                _messageBarState.value = MessageBarState(
+                    message = response.message,
+                    error = response.error
+                )
+            }
+        } catch (e: Exception) {
+            _apiResponse.value = RequestState.Error(e)
+            _messageBarState.value = MessageBarState(error = e)
         }
     }
 

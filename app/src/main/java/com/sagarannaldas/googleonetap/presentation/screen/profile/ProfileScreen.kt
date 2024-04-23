@@ -10,9 +10,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.auth.api.identity.Identity
+import com.sagarannaldas.googleonetap.domain.model.ApiRequest
 import com.sagarannaldas.googleonetap.domain.model.ApiResponse
 import com.sagarannaldas.googleonetap.navigation.Screen
+import com.sagarannaldas.googleonetap.presentation.screen.common.StartActivityForResult
+import com.sagarannaldas.googleonetap.presentation.screen.common.signIn
 import com.sagarannaldas.googleonetap.util.RequestState
+import retrofit2.HttpException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -56,6 +60,33 @@ fun ProfileScreen(
     )
 
     val activity = LocalContext.current as Activity
+
+    StartActivityForResult(
+        key = apiResponse,
+        onResultReceived = { tokenId ->
+            profileViewModel.verifyTokenOnBackend(request = ApiRequest(tokenId = tokenId))
+        },
+        onDialogDismissed = {
+            profileViewModel.saveSignedInState(signedIn = false)
+            navigateToLoginScreen(navController = navController)
+        }
+    ) { activityLauncher ->
+        if (apiResponse is RequestState.Success) {
+            val response = (apiResponse as RequestState.Success<ApiResponse>).data
+            if (response.error is HttpException && response.error.code() == 401) {
+                signIn(
+                    activity = activity,
+                    accountNotFound = {
+                        profileViewModel.saveSignedInState(signedIn = false)
+                        navigateToLoginScreen(navController = navController)
+                    },
+                    launchActivityResult = {
+                        activityLauncher.launch(it)
+                    }
+                )
+            }
+        }
+    }
 
     LaunchedEffect(key1 = clearSessionResponse) {
         if (clearSessionResponse is RequestState.Success &&
