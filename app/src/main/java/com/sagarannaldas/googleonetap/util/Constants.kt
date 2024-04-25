@@ -1,7 +1,8 @@
 package com.sagarannaldas.googleonetap.util
 
 object Constants {
-    const val BASE_URL = "http://192.168.0.184:8080"
+//    const val BASE_URL = "http://192.168.0.184:8080"
+    const val BASE_URL = "https://googleonetapserver-124afe9f6805.herokuapp.com/"
 //    const val BASE_URL = "http://0.0.0.0:8080"
     const val PREFERENCES_SIGNED_IN_KEY = "signed_in_key"
     const val PREFERENCES_NAME = "app_preferences"
